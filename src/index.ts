@@ -285,12 +285,15 @@ async function main(): Promise<void> {
             else pipeline.repeatClaim++;
 
             // Only post FIRST claims — skip fake and repeat claims entirely
-            if (isFake || !isFirstClaim) {
-                log.debug('Skipping %s claim by %s on %s',
-                    isFake ? 'fake' : 'repeat', event.githubUserId, mint.slice(0, 8));
+            // Skip only fake claims. Post both first and repeat real claims.
+             if (isFake) {
+                log.debug(
+                 'Skipping fake claim by %s on %s',
+                   event.githubUserId,
+                 mint.slice(0, 8),
+                          );
                 return;
-            }
-
+                            }
             const [githubUser, tokenInfo, solUsdPrice] = await Promise.all([
                 fetchGitHubUserById(event.githubUserId),
                 mint ? fetchTokenInfo(mint) : Promise.resolve(null),
@@ -331,8 +334,13 @@ async function main(): Promise<void> {
 
             const claimNumber = incrementGithubClaimCount(event.githubUserId, mint);
             const claimedMints = getGithubUserClaimedMints(event.githubUserId);
-            log.info('🚨 GitHub social fee FIRST claim by %s (%s) — %s SOL',
-                event.githubUserId, githubUser?.login ?? '?', event.amountSol.toFixed(4));
+            log.info(
+                   'GitHub social fee %s claim by %s (%s) — %s SOL',
+                    isFirstClaim ? 'FIRST' : 'REPEAT',
+                    event.githubUserId,
+                    githubUser?.login ?? '?',
+                    event.amountSol.toFixed(4),
+                    );
 
             const ctx: ClaimFeedContext = {
                 event,
@@ -340,7 +348,7 @@ async function main(): Promise<void> {
                 githubUser,
                 xProfile,
                 tokenInfo,
-                isFirstClaim: true,
+                isFirstClaim,
                 isFake: false,
                 claimNumber,
                 lifetimeClaimedSol: event.lifetimeClaimedLamports != null
