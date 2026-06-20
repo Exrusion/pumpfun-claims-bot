@@ -300,11 +300,13 @@ async function main(): Promise<void> {
             // "Other places" gate: GitHub account must exist and have at least 1 public repo.
             // A 0-repo account is not a verifiable developer, regardless of on-chain data.
             if (!githubUser || githubUser.publicRepos === 0) {
-                log.warn('Skipping FIRST claim by GitHub user %s — account unverifiable (%s repos, login=%s)',
-                    event.githubUserId, githubUser?.publicRepos ?? 'null', githubUser?.login ?? 'lookup-failed');
-                markGithubUserClaimed(event.githubUserId!);
-                return;
-            }
+                         log.warn(
+           'GitHub user %s unverifiable, posting anyway (%s repos, login=%s)',
+            event.githubUserId,
+            githubUser?.publicRepos ?? 'null',
+            githubUser?.login ?? 'lookup-failed'
+            );
+                 }
 
             // Second wave: depends on first-wave results.
             // settle() ensures one failing enrichment doesn't drop the whole batch.
