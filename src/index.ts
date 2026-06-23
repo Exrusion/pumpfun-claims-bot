@@ -285,11 +285,14 @@ async function main(): Promise<void> {
             else pipeline.repeatClaim++;
 
             // Only post FIRST claims — skip fake and repeat claims entirely
-            if (isFake || !isFirstClaim) {
-                log.debug('Skipping %s claim by %s on %s',
-                    isFake ? 'fake' : 'repeat', event.githubUserId, mint.slice(0, 8));
-                return;
-            }
+            if (isFake) {
+                         log.debug(
+                         'Skipping fake claim by %s on %s',
+                         event.githubUserId,
+                         mint.slice(0, 8),
+                          );
+                            return;
+                          }
 
             const [githubUser, tokenInfo, solUsdPrice] = await Promise.all([
                 fetchGitHubUserById(event.githubUserId),
